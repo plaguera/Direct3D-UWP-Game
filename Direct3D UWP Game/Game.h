@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "HelperFunctions.h"
+#include "Mesh.h"
 #include "StepTimer.h"
 
 
@@ -78,4 +80,43 @@ private:
 
     // Game state
     DX::StepTimer                                       m_timer;
+
+	void CreateMainInputFlowResources(const Mesh& mesh);
+	Mesh												m_mesh;
+
+	D3D12_VERTEX_BUFFER_VIEW							m_vBufferView;
+	D3D12_INDEX_BUFFER_VIEW								m_iBufferView;
+	Microsoft::WRL::ComPtr<ID3D12RootSignature>         m_rootSignature;
+	Microsoft::WRL::ComPtr<ID3D12Resource>              m_vBufferDefault; // Buffer para vértices
+	Microsoft::WRL::ComPtr<ID3D12Resource>              m_vBufferUpload; // Buffer para vértices
+	Microsoft::WRL::ComPtr<ID3D12Resource>              m_iBufferDefault; // Buffer para vértices
+	Microsoft::WRL::ComPtr<ID3D12Resource>              m_iBufferUpload; // Buffer para vértices
+	Microsoft::WRL::ComPtr<ID3D12Resource>				m_vConstantBuffer; // Buffer de constantes
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>		m_cDescriptorHeap;
+	unsigned int m_cDescriptorSize;
+
+	struct vConstants {
+
+		DirectX::XMFLOAT4X4 GTransform;
+
+	} m_vConstants;
+
+	void LoadPrecompiledShaders();
+
+	Microsoft::WRL::ComPtr<ID3DBlob>					m_vsByteCode;
+	Microsoft::WRL::ComPtr<ID3DBlob>					m_psByteCode;
+	D3D12_SHADER_BYTECODE								m_vs;
+	D3D12_SHADER_BYTECODE								m_ps;
+
+	void PSO();
+
+	std::vector<D3D12_INPUT_ELEMENT_DESC>				m_inputLayout;
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC		m_psoDescriptor;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState>		m_pso;
+
+	XMFLOAT4X4											m_world;
+	XMFLOAT4X4											m_view;
+	XMFLOAT4X4											m_projection;
+	float count = 0.0f;
 };
