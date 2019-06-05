@@ -340,6 +340,10 @@
       <SubType>Designer</SubType>
     </AppxManifest>
     <None Include="Direct3D UWP Game_TemporaryKey.pfx" />
+    <None Include="mesh.dat">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Logo.scale-200.png" />

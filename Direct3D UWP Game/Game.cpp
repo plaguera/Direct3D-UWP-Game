@@ -33,7 +33,7 @@ void Game::Initialize(::IUnknown* window, int width, int height, DXGI_MODE_ROTAT
 
 	CreateDevice(); // Creamos el dispotivo
 	CreateResources(); // Creamos recursos que dependen del tamaño de la ventana de visualización
-
+	
 	CreateMainInputFlowResources(m_mesh); //Creamos recursos y objetos D3D12 que permiten el flujo de entrada de datos al pipeline
 	LoadPrecompiledShaders(); // Cargamos shaders precompilados
 
@@ -64,11 +64,13 @@ void Game::Update(DX::StepTimer const& timer)
 	float elapsedTime = float(timer.GetElapsedSeconds());
 
 	// TODO: Actualización de las transformaciones en la escena
-
 	float x = radius * cosf(theta+count) * sinf(phi);
-	float y = radius/2.0;//* cosf(phi-count);
+	float y = radius;//* cosf(phi-count);
 	float z = radius * sinf(theta+count) * sinf(phi);
 	count += 0.035;
+
+//	x = 0.0; y = 0.0; z = -10;
+
 	// Recalculamos la matriz de vista
 	XMVECTOR location = XMVectorSet(x, y, z, 1.0f);
 	XMVECTOR target = XMVectorSet(0.0, 0.0, 0.0, 1.0f);
@@ -76,10 +78,20 @@ void Game::Update(DX::StepTimer const& timer)
 	XMMATRIX view = XMMatrixLookAtLH(location, target, up);
 	XMStoreFloat4x4(&m_view, view);
 
-	XMMATRIX world = XMLoadFloat4x4(&m_world);
-	XMMATRIX projection = XMMatrixPerspectiveFovLH(0.25*XM_PI, m_outputWidth / m_outputHeight, 0.5f, 1000.0f);
-	XMMATRIX transform = world * view*projection;
+	// Recalculamos la matriz del mundo
+	static float delta = 0.0;
+	delta += +elapsedTime * (0.1*XM_2PI);
 
+	XMMATRIX world = XMLoadFloat4x4(&m_world);
+	XMMATRIX rotation = XMMatrixRotationX(delta);
+	XMMATRIX translation = XMMatrixTranslation(0.0, 0.0, 0.0);
+	world = world * rotation * translation;
+	XMMATRIX projection = XMMatrixPerspectiveFovLH(0.25*XM_PI, m_outputWidth / m_outputHeight, 0.5f, 1000.0f);
+	XMLoadFloat4x4(&m_projection);
+	XMMATRIX worldview = world * view;
+	XMMATRIX transform = worldview * projection;
+	XMMATRIX normaltransform = XMMatrixTranspose(XMMatrixInverse(nullptr, worldview));
+	XMStoreFloat4x4(&m_vConstants.GNormalTransform, XMMatrixTranspose(normaltransform));
 	XMStoreFloat4x4(&m_vConstants.GTransform, XMMatrixTranspose(transform));
 
 	// Actualización del buffer de constantes
@@ -107,7 +119,7 @@ void Game::Render()
 	Clear();
 
 	// TODO: Add your rendering code here.
-	m_commandList->DrawIndexedInstanced(240, 1, 0, 0, 0);
+	m_commandList->DrawIndexedInstanced(m_mesh.GetISize(), 1, 0, 0, 0);
 	// Show the new frame.
 	Present();
 }
@@ -818,7 +830,8 @@ void Game::PSO()
 	m_inputLayout = {
 
 		{"POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0},
-		{"COLOR",0,DXGI_FORMAT_R32G32B32A32_FLOAT,0,12,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0}
+		{"COLOR",0,DXGI_FORMAT_R32G32B32A32_FLOAT,0,12,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0},
+		{"NORMAL",0,DXGI_FORMAT_R32G32B32_FLOAT,0,28,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0}
 	};
 
 	// Rasterizer state

@@ -82,7 +82,7 @@ private:
     DX::StepTimer                                       m_timer;
 
 	void CreateMainInputFlowResources(const Mesh& mesh);
-	Mesh												m_mesh;
+	Mesh												m_mesh { std::string("mesh.dat") };
 
 	D3D12_VERTEX_BUFFER_VIEW							m_vBufferView;
 	D3D12_INDEX_BUFFER_VIEW								m_iBufferView;
@@ -97,7 +97,9 @@ private:
 
 	struct vConstants {
 
-		DirectX::XMFLOAT4X4 GTransform;
+		//DirectX::XMFLOAT4X4 GTransform;
+		DirectX::XMFLOAT4X4 GTransform = { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 };
+		DirectX::XMFLOAT4X4 GNormalTransform = { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 };
 
 	} m_vConstants;
 
@@ -109,11 +111,9 @@ private:
 	D3D12_SHADER_BYTECODE								m_ps;
 
 	void PSO();
-
 	std::vector<D3D12_INPUT_ELEMENT_DESC>				m_inputLayout;
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC		m_psoDescriptor;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState>		m_pso;
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC					m_psoDescriptor;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState>			m_pso;
 
 	XMFLOAT4X4											m_world;
 	XMFLOAT4X4											m_view;

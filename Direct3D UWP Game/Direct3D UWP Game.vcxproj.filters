@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Direct3D UWP Game_TemporaryKey.pfx" />
+    <None Include="mesh.dat" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="pixel.hlsl" />
